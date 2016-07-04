@@ -1,9 +1,13 @@
 ---
 title: "Final Exam: Part 1"
-output: html_notebook
+output: 
+  html_notebook: 
+    highlight: pygments
+    theme: flatly
 ---
+
 ## Overview
-Forecasting Interest Rate Hikes by the U.S. Federal Reserve
+**Forecasting Interest Rate Hikes by the U.S. Federal Reserve**
 
 The federal funds rate is the key interest rate that the U.S. Federal Reserve uses to influence economic growth. The Federal Open Market Committee meets regularly to decide whether to increase, decrease, or maintain the target interest rate. Their choice has important ramifications that cascade through the economy, so the announcement of the interest rates is eagerly awaited each month.
 
@@ -29,7 +33,7 @@ library(magrittr)
 ```
 
 ### Problem 1 - Loading the Data
-Use the read.csv function to load the contents of federalFundsRate.csv into a data frame called fedFunds, using stringsAsFactors=FALSE.
+Use the `read.csv()` function to load the contents of `federalFundsRate.csv` into a data frame called `fedFunds`, using `stringsAsFactors=FALSE`.
 ```{r}
 
 ```
@@ -54,7 +58,6 @@ Which Federal Reserve Chair has presided over the most interest rate decisions?
 
 ### Problem 3 - Converting Variables to Factors
 Convert the following variables to factors using the as.factor function:
-
 - Chairman
 - DemocraticPres
 - RaisedFedFunds
@@ -81,10 +84,10 @@ library(caTools)
 spl <- sample.split(fedFunds$RaisedFedFunds, 0.7)
 ```
 
-Split months into a training data frame called "training" using the observations for which spl is TRUE and a testing data frame called "testing" using the observations for which spl is FALSE.
+Split months into a training data frame called `training` using the observations for which `spl == TRUE` and a testing data frame called `testing` using the observations for which `spl == FALSE`.
 
 #### Question:
-Why do we use the sample.split() function to split into a training and testing set?
+Why do we use the `sample.split()` function to split into a training and testing set?
 - It is the most convenient way to randomly split the data
 - It balances the independent variables between the training and testing sets
 - It balances the dependent variable between the training and testing sets
@@ -93,7 +96,7 @@ Why do we use the sample.split() function to split into a training and testing s
 
 
 ### Problem 5 - Training a Logistic Regression Model
-Train a logistic regression model using independent variables "PreviousRate", "Streak", "Unemployment", "HomeownershipRate", "DemocraticPres", and "MonthsUntilElection", using the training set to obtain the model.
+Train a logistic regression model using independent variables `PreviousRate`, `Streak`, `Unemployment`, `HomeownershipRate`, `DemocraticPres`, and `MonthsUntilElection`, using the training set to obtain the model.
 
 #### Question:
 Which of the following characteristics is the most statistically significant associated with an increased chance of the federal funds rate being raised?
@@ -118,7 +121,7 @@ According to the logistic regression model you built in Problem 5, what is the p
 ### Problem 7 - Interpreting Model Coefficients
 
 #### Question:
-What is the meaning of the coefficient labeled "DemocraticPres1" in the logistic regression summary output?
+What is the meaning of the coefficient labeled `DemocraticPres1` in the logistic regression summary output?
 - When the president is Democratic, the odds of the federal funds rate increasing are 34.8% higher than in an otherise identical month (i.e. identical among the variables in the model).  When the president is Democratic, the odds of the federal funds rate increasing are 34.8% higher than in an average month in the dataset.  When the president is Democratic, the odds of the federal funds rate increasing are 41.6% higher than in an otherise identical month (i.e. identical among the variables in the model).  When the president is Democratic, the odds of the federal funds rate increasing are 41.6% higher than in an average month in the dataset.
 
 #### Answer:
@@ -153,7 +156,8 @@ What is the test-set AUC of the logistic regression model?
 
 #### Question:
 What is the meaning of the AUC?
-The proportion of the time the model can differentiate between a randomly selected month during which the federal funds were raised and a randomly selected month during which the federal funds were not raised  The proportion of the time the model correctly identifies whether or not federal funds were raised
+- The proportion of the time the model can differentiate between a randomly selected month during which the federal funds were raised and a randomly selected month during which the federal funds were not raised
+- The proportion of the time the model correctly identifies whether or not federal funds were raised
 
 #### Answer:
 ```{r}
@@ -164,6 +168,9 @@ The proportion of the time the model can differentiate between a randomly select
 
 #### Question:
 Which logistic regression threshold is associated with the upper-right corner of the ROC plot (true positive rate 1 and false positive rate 1)?
+- 0
+- 0.5
+- 1
 
 #### Answer:
 ```{r}
@@ -175,7 +182,8 @@ Plot the colorized ROC curve for the logistic regression model's performance on 
 
 #### Question:
 At roughly which logistic regression cutoff does the model achieve a true positive rate of 85% and a false positive rate of 60%?
-
+- 0  0.16  0.37  0.52  0.66  0.87
+ 
 #### Answer:
 ```{r}
 
@@ -185,8 +193,7 @@ At roughly which logistic regression cutoff does the model achieve a true positi
 
 #### Question:
 Which of the following best describes how 10-fold cross-validation works when selecting between 2 different parameter values?
-
- 2 models are trained on subsets of the training set and evaluated on the testing set  10 models are trained on subsets of the training set and evaluated on the testing set  20 models are trained on subsets of the training set and evaluated on the testing set  2 models are trained on subsets of the training set and evaluated on a portion of the training set  10 models are trained on subsets of the training set and evaluated on a portion of the training set  20 models are trained on subsets of the training set and evaluated on a portion of the training set
+- 2 models are trained on subsets of the training set and evaluated on the testing set  10 models are trained on subsets of the training set and evaluated on the testing set  20 models are trained on subsets of the training set and evaluated on the testing set  2 models are trained on subsets of the training set and evaluated on a portion of the training set  10 models are trained on subsets of the training set and evaluated on a portion of the training set  20 models are trained on subsets of the training set and evaluated on a portion of the training set
 
 #### Answer:
 ```{r}
@@ -194,10 +201,15 @@ Which of the following best describes how 10-fold cross-validation works when se
 ```
 
 ### Problem 14 - Cross-Validation for a CART Model
-Set the random seed to 201 (even though you have already done so earlier in the problem). Then use the caret package and the train function to perform 10-fold cross validation with the training data set to select the best cp value for a CART model that predicts the dependent variable "RaisedFedFunds" using the independent variables "PreviousRate," "Streak," "Unemployment," "HomeownershipRate," "DemocraticPres," and "MonthsUntilElection." Select the cp value from a grid consisting of the 50 values 0.001, 0.002, ..., 0.05.
+Set the random seed to 201 (even though you have already done so earlier in the problem). Then use the caret package and the train function to perform 10-fold cross validation with the training data set to select the best cp value for a CART model that predicts the dependent variable `RaisedFedFunds` using the independent variables `PreviousRate`, `Streak`, `Unemployment`, `HomeownershipRate`, `DemocraticPres`, and `MonthsUntilElection`. Select the `cp` value from a grid consisting of the 50 values 0.001, 0.002, ..., 0.05.
+
+```{r}
+
+```
+
 
 #### Question:
-What cp value maximizes the cross-validation accuracy?
+What `cp` value maximizes the cross-validation accuracy?
 
 #### Answer:
 ```{r}
@@ -205,11 +217,11 @@ What cp value maximizes the cross-validation accuracy?
 ```
 
 ### Problem 15 - Train CART Model
-Build and plot the CART model trained with the parameter identified in Problem 14, again predicting the dependent variable using "PreviousRate", "Streak", "Unemployment", "HomeownershipRate", "DemocraticPres", and "MonthsUntilElection".
+Build and plot the CART model trained with the parameter identified in Problem 14, again predicting the dependent variable using `PreviousRate`, `Streak`, `Unemployment`, `HomeownershipRate`, `DemocraticPres`, and `MonthsUntilElection`.
 
 #### Question:
 What variable is used as the first (upper-most) split in the tree?
-PreviousRate  Streak  Unemployment  HomeownershipRate  DemocraticPres  MonthsUntilElection
+- PreviousRate  Streak  Unemployment  HomeownershipRate  DemocraticPres  MonthsUntilElection
 
 #### Answer:
 ```{r}

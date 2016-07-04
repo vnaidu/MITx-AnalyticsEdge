@@ -1,10 +1,13 @@
 ---
 title: "Final Exam: Part 1"
-output: html_notebook
+output: 
+  html_notebook: 
+    highlight: pygments
+    theme: flatly
 ---
 
 ## Overview
-Understanding Retail Consumers
+**Understanding Retail Consumers**
 
 In Unit 6, we saw how clustering can be used for market segmentation, the idea of dividing airline passengers into small, more similar groups, and then designing a marketing strategy specifically for each group.  In this problem, we'll see how this idea can be applied to retail consumer data.
 
