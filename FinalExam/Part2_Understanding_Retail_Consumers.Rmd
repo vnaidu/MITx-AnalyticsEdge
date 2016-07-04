@@ -34,7 +34,7 @@ library(magrittr)
 
 Read the dataset `Households.csv` into R.
 ```{r}
-
+households <- read.csv('./Data/Households.csv', stringsAsFactors=FALSE) %>% tbl_df()
 ```
 
 #### Question:
@@ -42,7 +42,7 @@ How many households have logged transactions at the retailer only in the morning
 
 #### Answer:
 ```{r}
-
+sum(households$MorningPct==100)
 ```
 
 #### Question:
@@ -50,7 +50,7 @@ How many households have logged transactions at the retailer only in the afterno
 
 #### Answer:
 ```{r}
-
+sum(households$AfternoonPct==100)
 ```
 
 ### Problem 2 - Descriptive statistics
@@ -60,7 +60,10 @@ Of the households that spend more than $150 per transaction on average, what is 
 
 #### Answer:
 ```{r}
-
+households %>% 
+  filter(households$AvgSalesValue>150) %>% 
+  select(AvgDiscount) %>% 
+  min()
 ```
 
 #### Question:
@@ -68,7 +71,10 @@ Of the households who have an average discount per transaction greater than 25%,
 
 #### Answer:
 ```{r}
-
+households %>% 
+  filter(AvgDiscount>25) %>% 
+  select(AvgSalesValue) %>% 
+  min()
 ```
 
 #### Question:
@@ -76,7 +82,7 @@ In the dataset, what proportion of households visited the retailer at least 300 
 
 #### Answer:
 ```{r}
-
+sum(households$NumVisits>300)/nrow(households)
 ```
 
 ### Problem 3 - Importance of Normalizing
@@ -86,16 +92,23 @@ When clustering data, it is often important to normalize the variables so that t
 NumVisits  AvgProdCount  AvgDiscount  AvgSalesValue  MorningPct  AfternoonPct
 
 #### Answer:
-**Answer**
+```{r}
+apply(households, 2, max) %>%
+  which.max() %>%
+  names()
+```
+
 
 ### Problem 4 - 
 Normalize all of the variables in the HouseHolds dataset by entering the following commands in your R console: (Note that these commands assume that your dataset is called "Households", and create the normalized dataset "HouseholdsNorm". You can change the names to anything you want by editing the commands.)
 
+```{r}
 library(caret)
+preproc <- preProcess(households)
+HouseholdsNorm <- predict(preproc, households)
+```
 
-preproc = preProcess(Households)
 
-HouseholdsNorm = predict(preproc, Households)
 
 (Remember that for each variable, the normalization process subtracts the mean and divides by the standard deviation. We learned how to do this in Unit 6.) In your normalized dataset, all of the variables should have mean 0 and standard deviation 1.
 
@@ -103,15 +116,28 @@ HouseholdsNorm = predict(preproc, Households)
 What is the maximum value of NumVisits in the normalized dataset?
 
 #### Answer:
-
+```{r}
+max(HouseholdsNorm$NumVisits)
+```
 
 #### Question:
 What is the minimum value of AfternoonPct in the normalized dataset?
 
 #### Answer:
+```{r}
+min(HouseholdsNorm$AfternoonPct)
+```
 
 
 ### Problem 5 - Interpreting the Dendrogram
+Run the following code to create a dendrogram of your data:
+
+```{r}
+set.seed(200)
+distances <- dist(HouseholdsNorm, method = "euclidean")
+ClusterShoppers <- hclust(distances, method = "ward.D")
+plot(ClusterShoppers, labels = FALSE)
+```
 
 #### Question:
 Based on the dendrogram, how many clusters do you think would be appropriate for this problem? Select all that apply.
@@ -125,18 +151,31 @@ Based on the dendrogram, how many clusters do you think would be appropriate for
 ### Problem 6 - K-means Clustering
 Run the k-means clustering algorithm on your normalized dataset, selecting 10 clusters. Right before using the kmeans function, type "set.seed(200)" in your R console.
 
+```{r}
+k <- 10
+set.seed(200)
+KMC <- kmeans(HouseholdsNorm, centers = 10)
+Households.kMClusters <- list()
+for(i in 1:k){
+  Households.kMClusters[[i]] <- subset(HouseholdsNorm, KMC$cluster==i)
+}
+```
+
+
 #### Question:
 How many observations are in the smallest cluster?
 
 #### Answer:
+```{r}
+min(KMC$size)
+```
 
 #### Question:
 How many observations are in the largest cluster?
 
 #### Answer:
-
 ```{r}
-
+max(KMC$size)
 ```
 
 ### Problem 7 - Understanding the Clusters
@@ -147,7 +186,12 @@ Which cluster best fits the description "morning shoppers stopping in to make a 
 
 #### Answer:
 ```{r}
-
+KMC_MorningPct_Avgs <- array()
+for(i in 1:k){
+  avgVal <- mean(Households.kMClusters[[i]][['MorningPct']], na.rm = T)
+  KMC_MorningPct_Avgs[i] <- avgVal
+}
+which.max(KMC_MorningPct_Avgs)
 ```
 
 ### Problem 8 - Understanding the Clusters
@@ -157,7 +201,7 @@ Which cluster best fits the description "shoppers with high average product coun
 
 #### Answer:
 ```{r}
-
+KMC$centers %>% as.data.frame() %>% mutate(ClusterNum=seq.int(10)) %>% arrange(AvgProdCount, AvgSalesValue)
 ```
 
 ### Problem 9 - Understanding the Clusters
@@ -167,7 +211,7 @@ Which cluster best fits the description "frequent shoppers with low value per vi
 
 #### Answer:
 ```{r}
-
+KMC$centers %>% as.data.frame() %>% mutate(ClusterNum=seq.int(10)) %>% arrange(desc(NumVisits), AvgSalesValue)
 ```
 
 ### Problem 10 - Random Behavior
@@ -214,19 +258,30 @@ Suppose the marketing department at the retail store decided that the 10 cluster
 
 ### Problem 12 - Increasing the Number of Clusters
 Run the k-means clustering algorithm again, this time selecting 5 clusters. Right before the "kmeans" function, set the random seed to 5000.
+```{r}
+k <- 5
+set.seed(5000)
+KMC_k5 <- kmeans(HouseholdsNorm, centers = k)
+Households.kMClusters_k5 <- list()
+for(i in 1:k){
+  Households.kMClusters_k5[[i]] <- subset(HouseholdsNorm, KMC_k5$cluster==i)
+}
+```
 
 #### Question:
 How many observations are in the smallest cluster?
 
 #### Answer:
+```{r}
+min(KMC_k5$size)
+```
 
 #### Question:
 How many observations are in the largest cluster?
 
 #### Answer:
-
 ```{r}
-
+max(KMC_k5$size)
 ```
 
 ### Problem 13 - Describing the Clusters
@@ -236,7 +291,11 @@ Using the cluster assignments from k-means clustering with 5 clusters, which clu
 
 #### Answer:
 ```{r}
-
+KMC_k5$centers %>%
+  as.data.frame() %>%
+  mutate(ClusterNum=seq.int(5)) %>%
+  arrange(desc(NumVisits), AvgSalesValue) %>%
+  head(1)['ClusterNum']
 ```
 
 ### Problem 14 - Understanding Centroids

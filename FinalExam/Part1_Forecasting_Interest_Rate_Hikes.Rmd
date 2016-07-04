@@ -27,7 +27,7 @@ In this problem, we will use analytics to try to predict when the Federal Reserv
 
 ## Solutions
 ### Initialization
-```{r, results='hide' ,warning=FALSE}
+```{r, results='hide', warning=FALSE}
 library(dplyr)
 library(magrittr)
 ```
@@ -35,7 +35,7 @@ library(magrittr)
 ### Problem 1 - Loading the Data
 Use the `read.csv()` function to load the contents of `federalFundsRate.csv` into a data frame called `fedFunds`, using `stringsAsFactors=FALSE`.
 ```{r}
-
+fedFunds <- read.csv('./Data/federalFundsRate.csv', stringsAsFactors=FALSE) %>% tbl_df()
 ```
 
 #### Question:
@@ -43,7 +43,7 @@ What proportion of months did the Fed raise the interest rate?
 
 #### Answer:
 ```{r}
-
+table(fedFunds$RaisedFedFunds)['1']/sum(table(fedFunds$RaisedFedFunds))
 ```
 
 ### Problem 2 - The Longest-Serving Fed Chair
@@ -53,7 +53,10 @@ Which Federal Reserve Chair has presided over the most interest rate decisions?
 
 #### Answer:
 ```{r}
-
+fedFunds$Chairman %>%
+  table() %>%
+  which.max() %>%
+  names()
 ```
 
 ### Problem 3 - Converting Variables to Factors
@@ -63,7 +66,9 @@ Convert the following variables to factors using the as.factor function:
 - RaisedFedFunds
 
 ```{r}
-
+fedFunds$Chairman %<>% as.factor()
+fedFunds$DemocraticPres %<>% as.factor()
+fedFunds$RaisedFedFunds %<>% as.factor()
 ```
 
 #### Question:
